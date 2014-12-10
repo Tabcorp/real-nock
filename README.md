@@ -1,6 +1,6 @@
 # real-nock
 
-> Create stubbed `HTTP` servers that you can modify on the fly.
+> Create stubbed HTTP servers that you can modify on the fly.
 
 ## Sample usage
 
@@ -30,7 +30,7 @@ describe 'my program', ->
     program.multiply (err, val) ->
       val.should.eql 20000
       done()
-      
+
   it 'fails gracefully when the backend is down', (done) ->
     backend.stub.get('/value').delayConnection(1000).reply('down')
     program.multiply (err, val) ->
@@ -42,12 +42,12 @@ That's it :smile:
 
 ## Why black-box testing?
 
-In many cases, mocking outbound `HTTP` calls is a great option.
+In many cases, mocking outbound HTTP calls is a great option.
 However, sometimes you might need to rely on a real backend server:
 
-- if you can to test the actual HTTP connection
-- if you want to write tests that are completely independant of the implementations
-- if the program you're testing isn't written in `Node`
+- if you want to test the actual HTTP connection
+- if you want to write tests that are completely independant of the implementation
+- if the program you're testing isn't written in Node
 
 ## That's great, what type of stubs can I set up?
 
