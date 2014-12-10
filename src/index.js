@@ -8,15 +8,16 @@ var PROXY_COUNT = 0;
 module.exports = Stub;
 
 function Stub(opts) {
+  var self = this;
   this.host = PROXY_HOST + (++PROXY_COUNT);
   this.port = opts.port;
   this.stub = nock('http://' + this.host + ':9999');
+  this.default = opts.default || 'timeout';
   this.server = httpProxy.createProxyServer({
     target: 'http://' + this.host + ':9999'
   });
   this.server.on('error', function(err, req, res) {
-    res.writeHead(404);
-    res.end('Stub not implemented');
+    handleError(req, res, self.default);
   });
 }
 
@@ -38,3 +39,19 @@ Stub.prototype.reset = function() {
     });
   });
 };
+
+function handleError(req, res, behaviour) {
+  if (typeof(behaviour) === 'number') {
+    // send a custom status code
+    res.writeHead(behaviour);
+    res.end();
+  } else if (typeof(behaviour) === 'function') {
+    // apply a custom function
+    behaviour(req, res);
+  } else if (behaviour === 'reset') {
+    // destroy the socket to send ECONNRESET
+    res.destroy();
+  } else {
+    // no nothing and let it timeout
+  }
+}

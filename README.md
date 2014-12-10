@@ -40,8 +40,6 @@ describe 'my program', ->
       done()
 ```
 
-That's it :smile:
-
 ## Why black-box testing?
 
 In many cases, mocking outbound HTTP calls is a great option.
@@ -64,4 +62,28 @@ backend.stub
   .twice()
   .delay(1000)
   .reply(200, 'Hello world')
+```
+
+## Error handling
+
+By default, the HTTP server will ignore any route that wasn't stubbed explicitly
+(the corresponding request will get `ETIMEDOUT`).
+
+You can also configure the following:
+
+```coffee
+# request will get a custom status code
+new Stub(port: 6789, default: 404)
+
+# request will get ECONNRESET
+new Stub(port: 6789, default: 'reset')
+
+# apply a custom (req, res) function
+new Stub(port: 6789, default: myHandler)
+```
+
+This behaviour can be changed at runtime by setting the `default` property.
+
+```coffee
+backend.default = 'reset'
 ```
