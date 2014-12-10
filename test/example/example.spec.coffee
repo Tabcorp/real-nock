@@ -1,5 +1,5 @@
 program = require './readme-program'
-Stub = require '../src/index'
+Stub = require '../../src/index'
 
 describe 'readme example', ->
 
