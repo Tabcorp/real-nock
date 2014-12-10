@@ -29,7 +29,8 @@ Stub.prototype.reset = function() {
     var u = url.parse(mock.replace(/^[A-Z]+ /, ''));
     nock.removeInterceptor({
       hostname: u.hostname,
-      path: u.path
+      path: u.path,
+      port: 9999
     });
   });
 };
