@@ -14,6 +14,10 @@ function Stub(opts) {
   this.server = httpProxy.createProxyServer({
     target: 'http://' + this.host + ':9999'
   });
+  this.server.on('error', function(err, req, res) {
+    res.writeHead(404);
+    res.end('Stub not implemented');
+  });
 }
 
 Stub.prototype.start = function(done) {

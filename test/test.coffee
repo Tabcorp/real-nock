@@ -1,7 +1,7 @@
-program = require './test-program'
+unirest = require 'unirest'
 Stub = require '../src/index'
 
-describe 'my program', ->
+describe 'unit tests', ->
 
   backend = new Stub(port: 6789)
 
@@ -9,20 +9,26 @@ describe 'my program', ->
   after  (done) -> backend.stop(done)
   beforeEach    -> backend.reset()
 
-  it 'multiplies the backend response by 2', (done) ->
-    backend.stub.get('/value').reply(200, value: 4)
-    program.multiply (err, val) ->
-      val.should.eql 8
-      done()
+  it 'can set up a stub for a given route', (done) ->
+    backend.stub.get('/users/1').reply(200, name: 'Alice')
+    unirest.get('http://localhost:6789/users/1')
+           .end (res) ->
+             res.error.should.eql(false)
+             res.body.should.eql(name: 'Alice')
+             done()
 
-  it 'also works for large numbers', (done) ->
-    backend.stub.get('/value').reply(200, value: 10000)
-    program.multiply (err, val) ->
-      val.should.eql 20000
-      done()
+  it 'can setup multiple stubs with conditions', (done) ->
+    backend.stub.post('/users', name: 'Alice').reply(200, id: 1)
+    backend.stub.post('/users', name: 'Bob'  ).reply(200, id: 2)
+    unirest.post('http://localhost:6789/users')
+           .send(name: 'Bob')
+           .end (res) ->
+             res.error.should.eql(false)
+             res.body.should.eql(id: 2)
+             done()
 
-  it 'fails gracefully when the backend is down', (done) ->
-    backend.stub.get('/value').delayConnection(1000).reply('down')
-    program.multiply (err, val) ->
-      err.message.should.eql 'Failed to call backend'
-      done()
+  it 'returns a 404 if the stub is not defined', (done) ->
+    unirest.get('http://localhost:6789/users/1')
+           .end (res) ->
+             res.should.have.status(404)
+             done()
