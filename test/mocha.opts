@@ -1,0 +1,7 @@
+--reporter spec
+--recursive
+--compilers coffee:coffee-script/register
+--require should
+--require should-http
+--slow 1000
+--timeout 2000
