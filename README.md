@@ -2,6 +2,8 @@
 
 > Create stubbed HTTP servers that you can modify on the fly.
 
+[![Build Status](http://img.shields.io/travis/TabDigital/real-nock.svg?style=flat)](http://travis-ci.org/TabDigital/real-nock)
+
 ## Sample usage
 
 Say you have a program that queries a backend system, and multiplies its response by 2.
