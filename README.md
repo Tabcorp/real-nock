@@ -33,8 +33,8 @@ describe 'my program', ->
       val.should.eql 20000
       done()
 
-  it 'fails gracefully when the backend is down', (done) ->
-    backend.stub.get('/value').delayConnection(1000).reply('down')
+  it 'fails gracefully when the backend is slow', (done) ->
+    backend.stub.get('/value').delayConnection(1000).reply('slow')
     program.multiply (err, val) ->
       err.message.should.eql 'Failed to call backend'
       done()
