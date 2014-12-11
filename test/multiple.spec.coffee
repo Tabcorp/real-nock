@@ -2,7 +2,7 @@ async = require 'async'
 unirest = require 'unirest'
 Stub = require '../src/index'
 
-describe 'stubs', ->
+describe 'multiple servers', ->
 
   backend1 = new Stub(port: 9001, default: 404)
   backend2 = new Stub(port: 9002, default: 404)
@@ -41,3 +41,15 @@ describe 'stubs', ->
       unirest.get('http://localhost:9002/value').end (res) ->
         res.status.should.eql 200
         done()
+
+  it 'can spin up and close servers at will', (done) ->
+    async.series [
+      (next) -> backend1.stop next
+      (next) -> backend2.stop next
+      (next) -> backend1.start next
+      (next) -> backend2.start next
+      (next) -> backend1.stop next
+      (next) -> backend2.stop next
+      (next) -> backend1.start next
+      (next) -> backend2.start next
+    ], done
