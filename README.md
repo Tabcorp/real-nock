@@ -82,8 +82,8 @@ This allows you to define two stubs in series,
 and get the corresponding responses in that order:
 
 ```coffee
-backend.stub.get('/message').send(200, 'hello')
-backend.stub.get('/message').send(200, 'goodbye')
+backend.stub.get('/message').reply(200, 'hello')
+backend.stub.get('/message').reply(200, 'goodbye')
 ```
 
 You can also configure them to apply more than once:
