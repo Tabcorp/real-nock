@@ -58,30 +58,59 @@ However, sometimes you might need to rely on a real backend server:
 
 `real-nock` uses [nock](https://github.com/pgte/nock) behind the scenes,
 so you should refer to their documentation for all possible operations.
-
 For example:
 
 ```coffee
+# reply with hello world after 1 second
 backend.stub
   .get('/')
-  .twice()
   .delay(1000)
   .reply(200, 'Hello world')
+
+# reply with the contents of a file
+# if the request payload matches
+backend.stub
+  .post('/users', name: 'Bob')
+  .replyWithFile(200, __dirname + '/bob.json');
 ```
 
-## Error handling
+Note that stubs are consumed as soon as they are called.
+Any subsequent call will be considered an *unknown* route,
+and trigger the default behaviour (see below).
 
-By default, the HTTP server will ignore any route that wasn't stubbed explicitly
-(the corresponding request will get `ETIMEDOUT`).
+This allows you to define two stubs in series,
+and get the corresponding responses in that order:
+
+```coffee
+backend.stub.get('/message').send(200, 'hello')
+backend.stub.get('/message').send(200, 'goodbye')
+```
+
+You can also configure them to apply more than once:
+
+```coffee
+backend.stub
+  .get('/value')
+  .times(5)
+  .reply(200, 'hello world')
+```
+
+## Default behaviour
+
+By default, the HTTP server will ignore any route that wasn't stubbed explicitly,
+or where the stub has been consumed. The corresponding request will get `ETIMEDOUT`.
 
 You can also configure the following:
 
 ```coffee
-# request will get a custom status code
-new Stub(port: 6789, default: 404)
+# default behaviour (ETIMEDOUT)
+new Stub(port: 6789, default: 'timeout')
 
 # request will get ECONNRESET
 new Stub(port: 6789, default: 'reset')
+
+# request will get a custom status code
+new Stub(port: 6789, default: 404)
 
 # apply a custom (req, res) function
 new Stub(port: 6789, default: myHandler)
