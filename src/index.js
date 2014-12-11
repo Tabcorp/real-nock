@@ -14,6 +14,7 @@ function Stub(opts) {
   this.stub = nock('http://' + this.host + ':9999');
   this.default = opts.default || 'timeout';
   this.log = !!opts.log;
+  this.running = false;
   this.server = httpProxy.createProxyServer({
     target: 'http://' + this.host + ':9999'
   });
@@ -27,11 +28,23 @@ function Stub(opts) {
 }
 
 Stub.prototype.start = function(done) {
-  this.server.listen(this.port, done);
+  var self = this;
+  if (this.running) return done();
+  if (this.log) console.log('[real-nock] Starting http://localhost:' + this.port);
+  this.server.listen(this.port, function(err) {
+    self.running = true;
+    done(err);
+  });
 };
 
 Stub.prototype.stop = function(done) {
-  this.server.close(done);
+  var self = this;
+  if (!this.running) return done();
+  if (this.log) console.log('[real-nock] Stopping http://localhost:' + this.port);
+  this.server.close(function(err) {
+    self.running = false;
+    done(err);
+  });
 };
 
 Stub.prototype.reset = function() {

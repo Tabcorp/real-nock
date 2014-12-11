@@ -1,4 +1,5 @@
 unirest = require 'unirest'
+async = require 'async'
 Stub = require '../src/index'
 
 describe 'stubs', ->
@@ -43,3 +44,16 @@ describe 'stubs', ->
     unirest.get('http://localhost:9000/users/1').end (res) ->
       res.status.should.eql 404
       done()
+
+  it 'has idempotent start/stop methods', (done) ->
+    async.series [
+      (next) -> backend.start next
+      (next) -> backend.start next
+      (next) -> backend.stop next
+      (next) -> backend.stop next
+    ], done
+
+  it 'can shutdown the server while requests are waiting', (done) ->
+    backend.stub.get('/users/1').delay(50000).reply(200, name: 'Alice')
+    unirest.get('http://localhost:9000/users/1').end (res) ->
+    backend.stop done
