@@ -13,10 +13,15 @@ function Stub(opts) {
   this.port = opts.port;
   this.stub = nock('http://' + this.host + ':9999');
   this.default = opts.default || 'timeout';
+  this.log = !!opts.log;
   this.server = httpProxy.createProxyServer({
     target: 'http://' + this.host + ':9999'
   });
+  this.server.on('proxyRes', function(proxyRes, req, res) {
+    self.debug(req, proxyRes.statusCode);
+  });
   this.server.on('error', function(err, req, res) {
+    self.debug(req, 'not stubbed');
     handleError(req, res, self.default);
   });
 }
@@ -38,6 +43,12 @@ Stub.prototype.reset = function() {
       port: 9999
     });
   });
+};
+
+Stub.prototype.debug = function(req, status) {
+  if (this.log) {
+    console.log('[real-nock: ' + status + '] ' + req.method + ' http://localhost:' + this.port + req.url);
+  }
 };
 
 function handleError(req, res, behaviour) {

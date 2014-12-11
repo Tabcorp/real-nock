@@ -121,3 +121,18 @@ This behaviour can be changed at runtime by setting the `default` property.
 ```coffee
 backend.default = 'reset'
 ```
+
+## Troubleshooting
+
+For debugging, you can log every call received by the stub server.
+
+```coffee
+backend = new Stub(port: 9000, log: true)
+```
+
+This will print the following to `stdout`:
+
+```
+[real-nock: not stubbed] GET http://localhost:8001/users/1
+[real-nock: 200] GET http://localhost:8001/users/2
+```
