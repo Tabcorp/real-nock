@@ -2,7 +2,12 @@
 
 > Create stubbed HTTP servers that you can modify on the fly.
 
+[![NPM](http://img.shields.io/npm/v/real-nock.svg?style=flat)](https://npmjs.org/package/real-nock)
+[![License](http://img.shields.io/npm/l/real-nock.svg?style=flat)](https://github.com/TabDigital/real-nock)
+
 [![Build Status](http://img.shields.io/travis/TabDigital/real-nock.svg?style=flat)](http://travis-ci.org/TabDigital/real-nock)
+[![Dependencies](http://img.shields.io/david/TabDigital/real-nock.svg?style=flat)](https://david-dm.org/TabDigital/real-nock)
+[![Dev dependencies](http://img.shields.io/david/dev/TabDigital/real-nock.svg?style=flat)](https://david-dm.org/TabDigital/real-nock)
 
 ## Sample usage
 
