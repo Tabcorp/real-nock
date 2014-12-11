@@ -4,7 +4,7 @@ Stub = require '../src/index'
 
 describe 'stubs', ->
 
-  backend = new Stub(port: 9000, default: 404)
+  backend = new Stub(port: 9000, default: 404, debug: false)
 
   before (done) -> backend.start(done)
   after  (done) -> backend.stop(done)

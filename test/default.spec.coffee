@@ -3,7 +3,7 @@ Stub = require '../src/index'
 
 describe 'behaviour for unknown stubs', ->
 
-  backend = new Stub(port: 9000)
+  backend = new Stub(port: 9000, debug: false)
 
   before (done) -> backend.start(done)
   after  (done) -> backend.stop(done)

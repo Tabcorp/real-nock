@@ -13,36 +13,44 @@ function Stub(opts) {
   this.port = opts.port;
   this.stub = nock('http://' + this.host + ':9999');
   this.default = opts.default || 'timeout';
-  this.log = !!opts.log;
+  this.debug = !!opts.debug;
   this.running = false;
   this.server = httpProxy.createProxyServer({
     target: 'http://' + this.host + ':9999'
   });
   this.server.on('proxyRes', function(proxyRes, req, res) {
-    self.debug(req, proxyRes.statusCode);
+    self.log(req.method + ' ' + req.url + ' (HTTP ' + proxyRes.statusCode + ')');
   });
   this.server.on('error', function(err, req, res) {
-    self.debug(req, 'not stubbed');
+    self.log(req.method + ' ' + req.url + ' (not stubbed)');
     handleError(req, res, self.default);
   });
 }
 
 Stub.prototype.start = function(done) {
   var self = this;
-  if (this.running) return done();
-  if (this.log) console.log('[real-nock] Starting http://localhost:' + this.port);
+  if (this.running) {
+    self.log('Already started');
+    return done();
+  }
+  self.log('Starting');
   this.server.listen(this.port, function(err) {
-    self.running = true;
+    self.log(err ? ('Failed to start: ' + err) : 'Started');
+    self.running = (err == null);
     done(err);
   });
 };
 
 Stub.prototype.stop = function(done) {
   var self = this;
-  if (!this.running) return done();
-  if (this.log) console.log('[real-nock] Stopping http://localhost:' + this.port);
+  if (!this.running) {
+    self.log('Already stopped');
+    return done();
+  }
+  self.log('Stopping');
   this.server.close(function(err) {
-    self.running = false;
+    self.log(err ? ('Failed to stop: ' + err) : 'Stopped');
+    self.running = (err != null);
     done(err);
   });
 };
@@ -58,9 +66,9 @@ Stub.prototype.reset = function() {
   });
 };
 
-Stub.prototype.debug = function(req, status) {
-  if (this.log) {
-    console.log('[real-nock: ' + status + '] ' + req.method + ' http://localhost:' + this.port + req.url);
+Stub.prototype.log = function(message) {
+  if (this.debug) {
+    console.log('[localhost:' + this.port + '] ' + message);
   }
 };
 

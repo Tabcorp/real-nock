@@ -124,15 +124,19 @@ backend.default = 'reset'
 
 ## Troubleshooting
 
-For debugging, you can log every call received by the stub server.
+For debugging, you can log most events on the stub server to `stdout`.
 
 ```coffee
-backend = new Stub(port: 9000, log: true)
+backend = new Stub(port: 9000, debug: true)
 ```
 
-This will print the following to `stdout`:
+which prints
 
 ```
-[real-nock: not stubbed] GET http://localhost:8001/users/1
-[real-nock: 200] GET http://localhost:8001/users/2
+[localhost:8001] Starting
+[localhost:8001] Started
+[localhost:8001] GET /users/1 (not stubbed)
+[localhost:8001] GET /users/2 (HTTP 200)
+[localhost:8001] Stopping
+[localhost:8001] Stopped
 ```

@@ -4,8 +4,8 @@ Stub = require '../src/index'
 
 describe 'multiple servers', ->
 
-  backend1 = new Stub(port: 9001, default: 404)
-  backend2 = new Stub(port: 9002, default: 404)
+  backend1 = new Stub(port: 9001, default: 404, debug: false)
+  backend2 = new Stub(port: 9002, default: 404, debug: false)
 
   before (done) ->
     async.parallel [
