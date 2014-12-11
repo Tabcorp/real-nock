@@ -4,6 +4,7 @@
   "description": "Create stub HTTP servers that you can modify on the fly",
   "author": "Tabcorp Digital Team",
   "license": "MIT",
+  "main": "src/index.js",
   "directories": {
     "test": "test"
   },
