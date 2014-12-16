@@ -1,14 +1,18 @@
-unirest = require 'unirest'
-async = require 'async'
-Stub = require '../src/index'
+unirest  = require 'unirest'
+async    = require 'async'
+should   = require 'should'
+Stub     = require '../src/index'
 
 describe 'stubs', ->
 
   backend = new Stub(port: 9000, default: 404, debug: false)
 
-  before (done) -> backend.start(done)
-  after  (done) -> backend.stop(done)
-  beforeEach    -> backend.reset()
+  beforeEach (done) ->
+    backend.reset()
+    backend.start done
+
+  after (done) ->
+    backend.stop done
 
   it 'can set up a stub for a given route', (done) ->
     backend.stub.get('/users/1').reply(200, name: 'Alice')
@@ -27,7 +31,7 @@ describe 'stubs', ->
            .end (res) ->
              res.error.should.eql false
              res.status.should.eql 200
-             res.body.should.eql(id: 2)
+             res.body.should.eql id: 2
              done()
 
   it 'consumes stubs so they can only be called once', (done) ->
@@ -37,6 +41,15 @@ describe 'stubs', ->
       unirest.get('http://localhost:9000/users/1').end (res) ->
         res.status.should.eql 404
         done()
+
+  it 'can delay responses using the nock API', (done) ->
+    backend.stub.get('/slow').delayConnection(500).reply(200)
+    time = Date.now()
+    unirest.get("http://localhost:9000/slow").end (res) ->
+      res.status.should.eql 200
+      total = Date.now() - time
+      total.should.be.approximately 500, 50
+      done()
 
   it 'can reset all stubbed routes', (done) ->
     backend.stub.get('/users/1').reply(200, name: 'Alice')
@@ -53,7 +66,7 @@ describe 'stubs', ->
       (next) -> backend.stop next
     ], done
 
-  it 'can shutdown the server while requests are waiting', (done) ->
-    backend.stub.get('/users/1').delay(50000).reply(200, name: 'Alice')
+  it 'can shutdown the server while requests are pending', (done) ->
+    backend.stub.get('/users/1').delayConnection(2000).reply(200, name: 'Alice')
     unirest.get('http://localhost:9000/users/1').end (res) ->
-    backend.stop done
+    setTimeout (-> backend.stop done), 100

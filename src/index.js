@@ -9,28 +9,44 @@ module.exports = Stub;
 
 function Stub(opts) {
   var self = this;
+  var nextSocketId = 0;
   this.host = PROXY_HOST + (++PROXY_COUNT);
   this.port = opts.port;
   this.stub = nock('http://' + this.host + ':9999');
   this.default = opts.default || 'timeout';
   this.debug = !!opts.debug;
   this.running = false;
-  this.server = httpProxy.createProxyServer({
+  this.sockets = {};
+  // Setup proxy server
+  this.proxy = httpProxy.createProxyServer({
     target: 'http://' + this.host + ':9999'
   });
-  this.server.on('proxyRes', function(proxyRes, req, res) {
+  this.proxy.on('proxyRes', function(proxyRes, req, res) {
     self.log(req.method + ' ' + req.url + ' (HTTP ' + proxyRes.statusCode + ')');
   });
-  this.server.on('error', function(err, req, res) {
+  this.proxy.on('error', function(err, req, res) {
     self.log(req.method + ' ' + req.url + ' (not stubbed)');
     handleError(req, res, self.default);
+  });
+  // Create real HTTP server
+  this.server = require('http').createServer(function(req, res) {
+    self.proxy.web(req, res, {});
+  });
+  // Keep track of open-sockets
+  // so we can force-close them
+  this.server.on('connection', function (socket) {
+    var socketId = nextSocketId++;
+    self.sockets[socketId] = socket;
+    socket.on('close', function () {
+      delete self.sockets[socketId];
+    });
   });
 }
 
 Stub.prototype.start = function(done) {
   var self = this;
   if (this.running) {
-    self.log('Already started');
+    this.log('Already started');
     return done();
   }
   self.log('Starting');
@@ -44,10 +60,17 @@ Stub.prototype.start = function(done) {
 Stub.prototype.stop = function(done) {
   var self = this;
   if (!this.running) {
-    self.log('Already stopped');
+    this.log('Already stopped');
     return done();
   }
-  self.log('Stopping');
+  var pendingSockets = Object.keys(this.sockets).length;
+  if (pendingSockets > 0) {
+    this.log('Destroying ' + pendingSockets + ' pending socket(s)')
+    for (var socketId in this.sockets) {
+      this.sockets[socketId].destroy();
+    }
+  }
+  this.log('Stopping');
   this.server.close(function(err) {
     self.log(err ? ('Failed to stop: ' + err) : 'Stopped');
     self.running = (err != null);

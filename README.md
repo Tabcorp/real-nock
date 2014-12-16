@@ -64,7 +64,7 @@ For example:
 # reply with hello world after 1 second
 backend.stub
   .get('/')
-  .delay(1000)
+  .delayConnection(1000)
   .reply(200, 'Hello world')
 
 # reply with the contents of a file
