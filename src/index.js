@@ -7,6 +7,9 @@ var PROXY_COUNT = 0;
 
 module.exports = Stub;
 
+// enable connections to the localhost
+nock.enableNetConnect(new RegExp('localhost|127\\.0\\.0\\.1|::1|0:0:0:0:0:0:0:1'));
+
 function Stub(opts) {
   var self = this;
   var nextSocketId = 0;
