@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha"
+    "test": "mocha"
   },
   "dependencies": {
     "http-proxy": "^1.7.3",
