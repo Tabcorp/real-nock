@@ -9,11 +9,17 @@
 [![Dependencies](http://img.shields.io/david/TabDigital/real-nock.svg?style=flat)](https://david-dm.org/TabDigital/real-nock)
 [![Dev dependencies](http://img.shields.io/david/dev/TabDigital/real-nock.svg?style=flat)](https://david-dm.org/TabDigital/real-nock)
 
-## Sample usage
+Say you have some code that queries a backend HTTP server, and multiplies its response by 2.
+You probably want to see how your code reacts under certain conditions.
 
-Say you have a program that queries a backend system, and multiplies its response by 2.
-You might want to do some **black-box** testing, spinning up an actual HTTP server
-so see how it reacts.
+In many cases, mocking outbound HTTP calls is a great option.
+However, sometimes you might want to do **black-box** testing, and rely on a real backend server:
+
+- if you want to test the actual HTTP connection
+- if you want to write tests that are completely independant of the implementation
+- if the program you're testing isn't written in Node
+
+`real-nock` lets you spin up & tear down HTTP servers on the fly, and dynamically configure how they react with stub data:
 
 ```coffee
 Stub = require 'real-nock'
@@ -22,9 +28,9 @@ describe 'my program', ->
 
   backend = new Stub(port: 6789)
 
-  before (done) -> backend.start(done)
-  after  (done) -> backend.stop(done)
-  beforeEach    -> backend.reset()
+  before (done) -> backend.start(done)     # starts the HTTP server
+  after  (done) -> backend.stop(done)      # shuts it down when we're done
+  beforeEach    -> backend.reset()         # resets any stubbed data between tests
 
   it 'multiplies the backend response by 2', (done) ->
     backend.stub.get('/value').reply(200, value: 4)
@@ -44,15 +50,6 @@ describe 'my program', ->
       err.message.should.eql 'Failed to call backend'
       done()
 ```
-
-## Why black-box testing?
-
-In many cases, mocking outbound HTTP calls is a great option.
-However, sometimes you might need to rely on a real backend server:
-
-- if you want to test the actual HTTP connection
-- if you want to write tests that are completely independant of the implementation
-- if the program you're testing isn't written in Node
 
 ## That's great, what type of stubs can I set up?
 
