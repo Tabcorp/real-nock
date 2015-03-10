@@ -4,16 +4,23 @@
   "description": "Create stub HTTP servers that you can modify on the fly",
   "author": "Tabcorp Digital Team",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/TabDigital/real-nock.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TabDigital/real-nock/issues"
+  },
   "main": "src/index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha"
+    "test": "mocha"
   },
   "dependencies": {
     "http-proxy": "^1.7.3",
-    "nock": "^0.51.0"
+    "nock": "^1.1.0"
   },
   "devDependencies": {
     "mocha": "~2.0.1",
