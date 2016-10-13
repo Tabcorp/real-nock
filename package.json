@@ -20,14 +20,14 @@
   },
   "dependencies": {
     "http-proxy": "^1.7.3",
-    "nock": "^7.4.0"
+    "nock": "^8.1.0"
   },
   "devDependencies": {
-    "mocha": "~2.0.1",
-    "coffee-script": "~1.8.0",
-    "unirest": "~0.3.2",
-    "should": "~4.3.1",
-    "should-http": "0.0.2",
-    "async": "~0.9.0"
+    "mocha": "~3.1.2",
+    "coffee-script": "~1.11.1",
+    "unirest": "~0.5.1",
+    "should": "~11.1.1",
+    "should-http": "0.0.4",
+    "async": "~2.1.1"
   }
 }

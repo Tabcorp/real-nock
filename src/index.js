@@ -31,6 +31,7 @@ function Stub(opts) {
     self.log(req.method + ' ' + req.url + ' (not stubbed)');
     handleError(req, res, self.default);
   });
+  console.log(this.proxy.close.toString())
   // Create real HTTP server
   this.server = require('http').createServer(function(req, res) {
     self.proxy.web(req, res, {});
@@ -41,6 +42,7 @@ function Stub(opts) {
     var socketId = nextSocketId++;
     self.sockets[socketId] = socket;
     socket.on('close', function () {
+      self.log('Socket ' + socketId + ' closed')
       delete self.sockets[socketId];
     });
   });
@@ -74,7 +76,11 @@ Stub.prototype.stop = function(done) {
     }
   }
   this.log('Stopping');
+  this.proxy.close(function(err) {
+    console.log('proxy closed', err)
+  })
   this.server.close(function(err) {
+    console.log(self.server);
     self.log(err ? ('Failed to stop: ' + err) : 'Stopped');
     self.running = (err != null);
     done(err);
