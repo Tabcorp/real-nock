@@ -5,6 +5,11 @@ var httpProxy = require('http-proxy');
 var PROXY_HOST = 'stub-nock-proxy-host';
 var PROXY_COUNT = 0;
 
+// Base path added to proxied requests to workaround issues with nocking the root path. Examples:
+//  1. /some-dir is routed to /test/some-dir
+//  2. / is routed to /test
+var BASE_PATH = '/test';
+
 module.exports = Stub;
 
 // enable connections to the localhost
@@ -15,7 +20,7 @@ function Stub(opts) {
   var nextSocketId = 0;
   this.host = PROXY_HOST + (++PROXY_COUNT);
   this.port = opts.port;
-  this.stub = nock('http://' + this.host + ':9999');
+  this.stub = nock('http://' + this.host + ':9999' + BASE_PATH);
   this.default = opts.default || 'timeout';
   this.debug = !!opts.debug;
   this.running = false;
@@ -33,6 +38,11 @@ function Stub(opts) {
   });
   // Create real HTTP server
   this.server = require('http').createServer(function(req, res) {
+    if (req.url === '/') {
+      req.url = BASE_PATH;
+    } else {
+      req.url = BASE_PATH + req.url;
+    }
     self.proxy.web(req, res, {});
   });
   // Keep track of open-sockets
